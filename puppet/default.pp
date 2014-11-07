@@ -5,7 +5,8 @@ node default {
 	}
 
 	include core::apache2
-	include core::mysql
+  include core::mysql
+  include core::git
 	include core::curl
 	include core::php5
 	include core::symfony

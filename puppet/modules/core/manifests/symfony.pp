@@ -13,7 +13,7 @@ class core::symfony {
 	exec { 'create symfony project':
 		cwd => '/var/www',
 		command => '/usr/local/bin/composer create-project symfony/framework-standard-edition symfony 2.5.* --prefer-dist --no-interaction',
-		require => [ Exec["download_composer"], Package['mysql-server'], Package['php5-mysql'], Package['php5-mysql'], Package['acl'] ],
+		require => [ Exec["download_composer"], Package['mysql-server'], Package['php5-mysql'], Package['php5-cli'], Package['acl'] ],
     onlyif => [
       "/usr/bin/test ! -f /var/www/symfony/composer.json",
       ##"/usr/local/bin/composer show -i | grep -c \"symfony/symfony\"",

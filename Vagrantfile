@@ -21,6 +21,12 @@ Vagrant.configure("2") do |config|
 
 	mode = ENV["SB_VAGRANT_MODE"] || 'dev'
 
+	if http_port > 0
+    	config.vm.network :forwarded_port, host: http_port, guest: 80
+    end
+    if sql_port > 0
+        config.vm.network :forwarded_port, host: sql_port, guest: 3306
+    end
 	if custom_ip
 		config.vm.network "private_network", ip: custom_ip
 	else
