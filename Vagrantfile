@@ -33,7 +33,7 @@ Vagrant.configure("2") do |config|
 	    config.vm.network "private_network", ip: "192.168.33.10" # Host-Only networking required for nfs shares
 	end
 
-	config.vm.synced_folder "./", "/var/www", id: "vagrant-root",  type: "nfs"
+	config.vm.synced_folder "./", "/var/www" #, id: "vagrant-root",  type: "nfs"
 
 	config.vm.provider "virtualbox" do |v|
 		v.customize ["modifyvm", :id, "--memory", 2048]

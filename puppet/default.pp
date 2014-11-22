@@ -4,6 +4,7 @@ node default {
 		command => '/usr/bin/apt-get update',
 	}
 
+	include core::acl
 	include core::apache2
   include core::mysql
   include core::git

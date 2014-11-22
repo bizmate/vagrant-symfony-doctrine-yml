@@ -1,15 +1,4 @@
 class core::symfony {
-  package { 'acl':
-    ensure  => present,
-    require => Exec['apt-update'],
-  }
-  #sed "s/\/ type ext4 (/\/ type ext4 (acl,/g"
-  #exec { 'create symfony db':
-  #  unless  => '/usr/bin/mysql -uroot symfony',
-  #  command => '/usr/bin/mysql -uroot -e "create database symfony;"',
-  #  require => Package['acl'],
-  #}
-  
 	exec { 'create symfony project':
 		cwd => '/var/www',
 		command => '/usr/local/bin/composer create-project symfony/framework-standard-edition symfony "2.5.*" --prefer-dist --no-interaction -vvv',
@@ -21,16 +10,51 @@ class core::symfony {
     ],
     timeout => 0
   }
-    
-  #exec { 'set_symfony_permissions':
-  #  cwd => '/var/www/symfony',
-  #  command => "/bin/rm -rf app/cache/*; \
-   #   /bin/rm -rf app/logs/*; \
-  #    APACHEUSER=`ps aux | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data' | grep -v root | head -1 | cut -d\  -f1`; \
-  #    sudo chmod +a \"\$APACHEUSER allow delete,write,append,file_inherit,directory_inherit\" app/cache app/logs; \
-  #    sudo chmod +a \"`whoami` allow delete,write,append,file_inherit,directory_inherit\" app/cache app/logs",
-  #  require => [ Exec['create symfony project'], Package['acl'] ] ,
-  #}
+
+
+
+	file { "/var/symfonyCache":
+		ensure => "directory",
+	}
+
+	file { "/var/log/symfonyLogs":
+		ensure => "directory",
+	}
+
+	file{'symfony_cache_link':
+		path  => '/var/www/symfony/app/cache',
+		ensure => link,
+		target => '/var/symfonyCache',
+		require => File[ '/var/symfonyCache']
+	}
+
+	file{'symfony_log_link':
+		path  => '/var/www/symfony/app/logs',
+		ensure => link,
+		target => '/var/symfonyCache',
+		require => File[ '/var/log/symfonyLogs']
+	}
+
+		/*
+		symfony permissions are tricky, we need to use ACL and set up permissions as described at
+
+		http://symfony.com/doc/current/book/installation.html
+
+		HTTPDUSER=`ps aux | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+		$ sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs
+		$ sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs
+
+		*/
+
+  exec { 'set_symfony_permissions':
+    cwd => '/var/www/symfony',
+    command => 'sudo /bin/rm -rf app/cache/*;sudo /bin/rm -rf app/logs/*; \
+      HTTPDUSER=`ps aux | grep -E \'[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx\' | grep -v root | head -1 | cut -d\  -f1`; \
+      sudo /usr/bin/setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs; \
+      sudo /usr/bin/setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs',
+    require => [ File['/var/log/symfonyLogs', '/var/symfonyCache'], Package['acl'] ] ,
+		path => [ "/bin/", "/usr/bin"]
+  }
 
   exec { 'create symfony db':
     unless  => '/usr/bin/mysql -uroot symfony',
