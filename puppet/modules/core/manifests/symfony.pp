@@ -31,7 +31,7 @@ class core::symfony {
 	file{'symfony_log_link':
 		path  => '/var/www/symfony/app/logs',
 		ensure => link,
-		target => '/var/symfonyCache',
+		target => '/var/log/symfonyLogs',
 		require => File[ '/var/log/symfonyLogs']
 	}
 
