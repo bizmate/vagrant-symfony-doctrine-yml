@@ -13,10 +13,16 @@ class core::symfony {
 
 		file { "/var/symfonyCache":
 				ensure => "directory",
+        owner => 'www-data',
+        group => 'www-data',
+        mode => '0777'
 		}
 
 		file { "/var/log/symfonyLogs":
 				ensure => "directory",
+        owner => 'www-data',
+        group => 'www-data',
+        mode => '0777'
 		}
 
 		/*file {'remove_default_logs':
@@ -37,7 +43,7 @@ class core::symfony {
 				require => Exec['create symfony project']
 		}*/
 
-		file{'symfony_cache_link':
+		/*file{'symfony_cache_link':
 				path  => '/var/www/symfony/app/cache',
 				ensure => link,
 				target => '/var/symfonyCache',
@@ -53,7 +59,7 @@ class core::symfony {
 				purge => true,
 				force => true,
 				require => [File[ '/var/log/symfonyLogs'], Exec['create symfony project']]
-		}
+		}*/
 
 /*
 symfony permissions are tricky, we need to use ACL and set up permissions as described at
@@ -65,20 +71,21 @@ $ sudo setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs
 $ sudo setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs
 
 */
-		exec { 'clean_log_cache_dirs':
+		/*exec { 'clean_log_cache_dirs':
 				cwd => '/var/www/symfony',
-				command => 'sudo /bin/rm -rf app/cache/*;sudo /bin/rm -rf app/logs/*;',
+				command => 'sudo /bin/rm -rf app/cache*//*;sudo /bin/rm -rf app/logs*//*;',
 				require => File['symfony_log_link', 'symfony_cache_link'] ,
 				path => [ "/bin/", "/usr/bin"]
-		}
+		}*/
 
 		exec { 'set_symfony_permissions':
 				cwd => '/var/www/symfony',
 				command =>
 						#'ls;HTTPDUSER=$(ps aux | grep -E \'[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx\' | grep -v root | head -1 | cut -d\  -f1);sudo /usr/bin/setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs;sudo /usr/bin/setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs',
-						'/usr/bin/setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX -m u:vagrant:rwX app/cache app/logs;\
-						/usr/bin/setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX -m u:vagrant:rwX app/cache app/logs',
-				require => [ Package['acl'], Exec['clean_log_cache_dirs'] ] ,
+						'/usr/bin/setfacl -R -m u:www-data:rwX -m u:`whoami`:rwX -m u:vagrant:rwX /var/symfonyCache /var/log/symfonyLogs;\
+						/usr/bin/setfacl -dR -m u:www-data:rwX -m u:`whoami`:rwX -m u:vagrant:rwX /var/symfonyCache /var/log/symfonyLogs',
+      #require => [ Package['acl'], Exec['clean_log_cache_dirs'] ] ,
+      require => [ Package['acl'] ] ,
 				path => [ "/bin/", "/usr/bin"]
 		}
 

@@ -18,8 +18,7 @@ class core::mysql {
 	file { 'mysql configuration':
 		path    => '/etc/mysql/conf.d/conf.cnf',
 		ensure  => present,
-		content => "\
-[mysqld]
+		content => "[mysqld]
 lower_case_table_names = 1
 bind-address = 0.0.0.0
 skip-external-locking = FALSE

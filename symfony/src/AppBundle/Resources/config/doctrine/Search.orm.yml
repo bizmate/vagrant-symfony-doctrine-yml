@@ -1,0 +1,11 @@
+AppBundle\Entity\Search:
+    type:  entity
+    repositoryClass: AppBundle\Entity\SearchRepository
+    table: search
+    id:
+        term:
+            type: string
+            length: 255
+    fields:
+      val:
+        type: integer

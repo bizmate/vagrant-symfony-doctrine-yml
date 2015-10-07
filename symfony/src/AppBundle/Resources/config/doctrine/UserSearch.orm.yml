@@ -1,0 +1,14 @@
+AppBundle\Entity\UserSearch:
+    type:  entity
+    repositoryClass: AppBundle\Entity\UserSearchRepository
+    table: user_search
+    id:
+        searchTerm:
+            type: string
+            length: 255
+        userId:
+            type: integer
+
+    fields:
+      track:
+        type: boolean
