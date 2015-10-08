@@ -9,3 +9,8 @@ AppBundle\Entity\Search:
     fields:
       val:
         type: integer
+
+    #oneToMany:
+    #    term:
+    #        targetEntity: AppBundle\Entity\UserSearch
+    #        inversedBy: searchTerm

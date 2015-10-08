@@ -6,9 +6,25 @@ AppBundle\Entity\UserSearch:
         searchTerm:
             type: string
             length: 255
+            associationKey: true
         userId:
             type: integer
+            associationKey: true
 
     fields:
       track:
         type: boolean
+
+    manyToOne:
+      userId:
+          targetEntity: AppBundle\Entity\User
+          #joinColum:
+          #  name: user_id
+          # referencedColumnName: id
+      searchTerm:
+          targetEntity: AppBundle\Entity\Search
+          inversedBy: term
+          joinColum:
+            name: searchTerm
+            referencedColumnName: term
+
