@@ -23,8 +23,7 @@ AppBundle\Entity\UserSearch:
           # referencedColumnName: id
       searchTerm:
           targetEntity: AppBundle\Entity\Search
-          inversedBy: term
-          joinColum:
-            name: searchTerm
+          joinColumn:
+            #name: search_term
             referencedColumnName: term
 
